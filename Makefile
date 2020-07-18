@@ -20,4 +20,4 @@ docker-push:
 	docker push yfsoftcom/rtsp-websocket
 
 docker-run:
-	docker run -p 8081:8081 -p 8082:8082 yfsoftcom/rtsp-websocket
+	docker run -p 8081:8081 -p 8082:8082 -d yfsoftcom/rtsp-websocket
