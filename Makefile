@@ -10,4 +10,14 @@ convert:
 	-f mpegts \
 		-codec:v mpeg1video -s 640x480 -b:v 1000k -bf 0 \
 		-muxdelay 0.001 \
-	http://localhost:8081/fpmpassword
+	http://open.yunplus.io:8081/fpmpassword
+
+
+docker-build:
+	docker build -t yfsoftcom/rtsp-websocket .
+
+docker-push:
+	docker push yfsoftcom/rtsp-websocket
+
+docker-run:
+	docker run -p 8081:8081 -p 8082:8082 yfsoftcom/rtsp-websocket
