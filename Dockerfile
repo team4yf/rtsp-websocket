@@ -6,7 +6,7 @@ ADD ./package.json /app/package.json
 
 COPY ./websocket-relay.js /app/websocket-relay.js
 
-RUN cd /app && npm i
+RUN cd /app && npm i --production
 
 EXPOSE 8081 8082
 

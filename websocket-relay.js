@@ -3,6 +3,8 @@
 // Example:
 // node websocket-relay fpmpassword 8081 8082
 // ffmpeg -i <some input> -f mpegts http://192.168.88.111:8081/fpmpassword
+const debug = require('debug')('ws-test');
+const _ = require("lodash");
 
 var fs = require('fs'),
 	http = require('http'),
@@ -21,26 +23,41 @@ var STREAM_SECRET = process.argv[2],
 	WEBSOCKET_PORT = process.argv[4] || 8082,
 	RECORD_STREAM = false;
 
+const CameraMap = {};
+
 // Websocket Server
 var socketServer = new WebSocket.Server({port: WEBSOCKET_PORT, perMessageDeflate: false});
 socketServer.connectionCount = 0;
 socketServer.on('connection', function(socket, upgradeReq) {
-	socketServer.connectionCount++;
-	console.log(
-		'New WebSocket Connection: ',
-		(upgradeReq || socket.upgradeReq).socket.remoteAddress,
-		(upgradeReq || socket.upgradeReq).headers['user-agent'],
-		'('+socketServer.connectionCount+' total)'
-	);
+	
+	var params = upgradeReq.url.substr(1).split('/');
+	
+	const sn = params[0];
+	if (!_.has(CameraMap, sn)){
+		CameraMap[sn] = {
+			total: 0,
+			clients: [],
+			open: false,
+		};
+	}
+	CameraMap[sn].total++;
+	CameraMap[sn].remoteAddress = (upgradeReq || socket.upgradeReq).socket.remoteAddress;
+	CameraMap[sn].headers = (upgradeReq || socket.upgradeReq).headers['user-agent'];
+	CameraMap[sn].clients.push(socket);
+
+	debug("sn %s, client: %d, open: %b", sn, CameraMap[sn].clients.length, CameraMap[sn].open)
 	socket.on('close', function(code, message){
-		socketServer.connectionCount--;
-		console.log(
-			'Disconnected WebSocket ('+socketServer.connectionCount+' total)'
+		CameraMap[sn].total--;
+		debug(
+			'Disconnected WebSocket ('+CameraMap[sn].total+'  total)'
 		);
 	});
 });
-socketServer.broadcast = function(data) {
-	socketServer.clients.forEach(function each(client) {
+socketServer.broadcast = function(sn, data) {
+	const clients = CameraMap[sn].clients;
+	
+	clients.forEach(function each(client) {
+		if (!client) return;
 		if (client.readyState === WebSocket.OPEN) {
 			client.send(data);
 		}
@@ -50,7 +67,7 @@ socketServer.broadcast = function(data) {
 // HTTP Server to accept incomming MPEG-TS Stream from ffmpeg
 var streamServer = http.createServer( function(request, response) {
 	var params = request.url.substr(1).split('/');
-
+	// params
 	if (params[0] !== STREAM_SECRET) {
 		console.log(
 			'Failed Stream Connection: '+ request.socket.remoteAddress + ':' +
@@ -59,30 +76,44 @@ var streamServer = http.createServer( function(request, response) {
 		response.end();
 	}
 
+	//http://localhost:18081/fpmpassword/abc 路由中 /abc 就对应设备的 sn
+	const sn = params[1]
+
+	if (!_.has(CameraMap, sn)){
+		CameraMap[sn] = {
+			total: 0,
+			clients: [],
+			open: false,
+		};
+	}
+	
 	response.connection.setTimeout(0);
-	console.log(
+	debug(
 		'Stream Connected: ' +
 		request.socket.remoteAddress + ':' +
 		request.socket.remotePort
 	);
 	request.on('data', function(data){
-		socketServer.broadcast(data);
+		// debug('data:', data)
+		CameraMap[sn].open = true;
+		socketServer.broadcast(sn, data);
 		if (request.socket.recording) {
 			request.socket.recording.write(data);
 		}
 	});
 	request.on('end',function(){
 		console.log('close');
+		CameraMap[sn].open = false;
 		if (request.socket.recording) {
 			request.socket.recording.close();
 		}
 	});
 
 	// Record the stream to a local file?
-	if (RECORD_STREAM) {
-		var path = 'recordings/' + Date.now() + '.ts';
-		request.socket.recording = fs.createWriteStream(path);
-	}
+	// if (RECORD_STREAM) {
+	// 	var path = 'recordings/' + Date.now() + '.ts';
+	// 	request.socket.recording = fs.createWriteStream(path);
+	// }
 })
 // Keep the socket open for streaming
 streamServer.headersTimeout = 0;
