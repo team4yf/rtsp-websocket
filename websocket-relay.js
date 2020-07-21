@@ -66,6 +66,42 @@ socketServer.broadcast = function(sn, data) {
 
 // HTTP Server to accept incomming MPEG-TS Stream from ffmpeg
 var streamServer = http.createServer( function(request, response) {
+
+	// static files serve
+	if(_.startsWith(request.url, "/static")){
+		
+		fs.readFile(__dirname + request.url, function (err,data) {
+			if (err) {
+				response.writeHead(404);
+				response.end(JSON.stringify(err));
+				return;
+			}
+			response.writeHead(200);
+			response.end(data);
+		});
+		  
+		return;
+	}
+	
+	if( request.url === '/favicon.ico' ){
+		return;
+	}
+	debug("[URL] -> %s", request.url)
+	if( request.url === '/api/camera/list') {
+		const data = {};
+		_.forEach(CameraMap, (camera,key) => {
+			data[key] = {
+				total: camera.total,
+				open: camera.open,
+			};
+		})
+		response.writeHead(200);
+		response.end(JSON.stringify(data));
+		return;
+	}
+
+	
+	// 
 	var params = request.url.substr(1).split('/');
 	// params
 	if (params[0] !== STREAM_SECRET) {

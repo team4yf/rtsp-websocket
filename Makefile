@@ -31,7 +31,7 @@ convert-test:
 	-f mpegts \
 		-codec:v mpeg1video -s 640x480 -b:v 100k -bf 0 \
 		-muxdelay 0.001 \
-	http://open.yunplus.io:18081/fpmpassword/abc
+	http://localhost:18081/fpmpassword/abc
 
 docker-build:
 	docker build -t yfsoftcom/rtsp-websocket .
