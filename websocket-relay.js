@@ -100,6 +100,23 @@ var streamServer = http.createServer( function(request, response) {
 		return;
 	}
 
+	if( _.startsWith(request.url, '/api/camera/get/')) {
+		const urlSlice = request.url.split('/');
+		const sn = urlSlice[urlSlice.length - 1]
+
+		var camera = { 
+			open: false,
+			total: 0,
+		};
+		if (_.has(CameraMap, sn)){
+			camera = CameraMap[sn];
+		}
+		delete camera.clients;
+		response.writeHead(200);
+		response.end(JSON.stringify(camera));
+		return; 
+	}
+
 	
 	// 
 	var params = request.url.substr(1).split('/');
@@ -112,7 +129,7 @@ var streamServer = http.createServer( function(request, response) {
 		response.end();
 	}
 
-	//http://localhost:18081/fpmpassword/abc 路由中 /abc 就对应设备的 sn
+	// http://localhost:18081/fpmpassword/abc 路由中 /abc 就对应设备的 sn
 	const sn = params[1]
 
 	if (!_.has(CameraMap, sn)){

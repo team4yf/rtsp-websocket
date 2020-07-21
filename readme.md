@@ -9,7 +9,14 @@ Camera -> RTSP -> FFMPEG -> Server -> Websocket -> JSMpeg -> Live .
 ### Push rtsp
 
 ```bash
-ffmpeg -i rtsp://192.168.88.205:8554/ -f mpegts http://192.168.88.111:18081/fpmpassword/abc
+ffmpeg -i rtsp://192.168.88.205:8554/ -f mpegts http://[yourhost]/fpmpassword/abc
 ```
 
-Demo: http://open.yunplus.io:1880/demo.html
+Demo: http://[yourhost]/static/demo.html
+
+
+### API
+
+- GET /api/list
+
+- GET /api/get/:sn
