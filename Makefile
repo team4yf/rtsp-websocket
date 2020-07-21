@@ -31,6 +31,17 @@ convert-test:
 	-f mpegts \
 		-codec:v mpeg1video -s 640x480 -b:v 100k -bf 0 \
 		-muxdelay 0.001 \
+	http://open.yunplus.io:18081/fpmpassword/abc
+
+convert-local:
+	ffmpeg \
+	-stream_loop -1 \
+	-re -i \
+	test.mp4 \
+	-an \
+	-f mpegts \
+		-codec:v mpeg1video -s 640x480 -b:v 100k -bf 0 \
+		-muxdelay 0.001 \
 	http://localhost:18081/fpmpassword/abc
 
 docker-build:

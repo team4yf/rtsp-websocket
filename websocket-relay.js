@@ -54,8 +54,13 @@ socketServer.on('connection', function(socket, upgradeReq) {
 	});
 });
 socketServer.broadcast = function(sn, data) {
+	if(!CameraMap[sn]){
+		return;
+	}
 	const clients = CameraMap[sn].clients;
-	
+	if(!clients){
+		return;
+	}
 	clients.forEach(function each(client) {
 		if (!client) return;
 		if (client.readyState === WebSocket.OPEN) {
@@ -109,9 +114,9 @@ var streamServer = http.createServer( function(request, response) {
 			total: 0,
 		};
 		if (_.has(CameraMap, sn)){
-			camera = CameraMap[sn];
+			camera.open = CameraMap[sn].open;
+			camera.total = CameraMap[sn].total;
 		}
-		delete camera.clients;
 		response.writeHead(200);
 		response.end(JSON.stringify(camera));
 		return; 
