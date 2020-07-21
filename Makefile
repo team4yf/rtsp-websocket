@@ -13,6 +13,15 @@ convert:
 	http://open.yunplus.io:18081/fpmpassword/abc
 
 
+convert-mac:
+	ffmpeg \
+	-f avfoundation -i "0"\
+		-framerate 50 -video_size 640x480 \
+	-f mpegts \
+		-codec:v mpeg1video -s 640x480 -b:v 10k -bf 0 \
+		-muxdelay 0.001 \
+	http://open.yunplus.io:18081/fpmpassword/abc
+
 convert-test:
 	ffmpeg \
 	-stream_loop -1 \

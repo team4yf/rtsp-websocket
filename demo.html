@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title>JSMpeg Stream Client</title>
+	<title>监控画面演示</title>
 	<style type="text/css">
 		html, body {
 			background-color: #111;
@@ -11,12 +11,17 @@
 	
 </head>
 <body>
+	
+	<label style="color: #fff">输入监控画面地址：</label><input style="width: 300px;" id="sn-input" value="ws://open.yunplus.io:18082/abc" /> &nbsp;<button id="preview-btn">Preview</button><br/>
 	<canvas id="video-canvas"></canvas>
 	<script type="text/javascript" src="jsmpeg.min.js"></script>
 	<script type="text/javascript">
 		var canvas = document.getElementById('video-canvas');
-		var url = 'ws://open.yunplus.io:18082/abc';
-		var player = new JSMpeg.Player(url, {canvas: canvas});
+		var snInput = document.getElementById("sn-input");
+		document.getElementById("preview-btn").onclick = function(e) {
+			var url =  snInput.value;
+			new JSMpeg.Player(url, {canvas: canvas});
+		};
 	</script>
 </body>
 </html>
