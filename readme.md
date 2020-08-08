@@ -17,6 +17,6 @@ Demo: http://[yourhost]/static/demo.html
 
 ### API
 
-- GET /api/list
+- GET /api/camera/list
 
-- GET /api/get/:sn
+- GET /api/camera/get/:sn
