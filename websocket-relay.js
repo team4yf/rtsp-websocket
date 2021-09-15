@@ -69,7 +69,7 @@ socketServer.broadcast = function(sn, data) {
 	});
 };
 
-// HTTP Server to accept incomming MPEG-TS Stream from ffmpeg
+// HTTP Server to accept incoming MPEG-TS Stream from ffmpeg
 var streamServer = http.createServer( function(request, response) {
 
 	// static files serve

@@ -1,7 +1,12 @@
+SERVER = https://rtsp.yunjiaiot.cn/push
+SECRET = fpmpassword
+STREAM_ID = abc
 server:
-	npx nodemon websocket-relay fpmpassword 18081 18082
+	npx nodemon websocket-relay $(SECRET) 18081 18082
+
 http:
 	npx http-server . -d False -s --cors -c-1 -p 8099
+
 convert:
 	ffmpeg \
 	-i rtsp://admin:Mima123456@172.16.11.64:554/h264/1/sub/av_stream \
@@ -9,7 +14,7 @@ convert:
 	-f mpegts \
 		-codec:v mpeg1video -s 640x480 -b:v 100k -bf 0 \
 		-muxdelay 0.001 \
-	http://open.yunplus.io:18081/fpmpassword/abc
+	$(SERVER)/$(SECRET)/$(STREAM_ID)
 
 
 convert-mac:
@@ -19,7 +24,7 @@ convert-mac:
 	-f mpegts \
 		-codec:v mpeg1video -s 640x480 -b:v 10k -bf 0 \
 		-muxdelay 0.001 \
-	http://open.yunplus.io:18081/fpmpassword/abc
+	$(SERVER)/$(SECRET)/$(STREAM_ID)
 
 convert-test:
 	ffmpeg \
@@ -30,7 +35,7 @@ convert-test:
 	-f mpegts \
 		-codec:v mpeg1video -s 640x480 -b:v 100k -bf 0 \
 		-muxdelay 0.001 \
-	http://open.yunplus.io:18081/fpmpassword/abc
+	$(SERVER)/$(SECRET)/$(STREAM_ID)
 
 convert-local:
 	ffmpeg \
@@ -39,9 +44,9 @@ convert-local:
 	test.mp4 \
 	-an \
 	-f mpegts \
-		-codec:v mpeg1video -s 640x480 -b:v 100k -bf 0 \
-		-muxdelay 0.001 \
-	http://localhost:18081/fpmpassword/abc
+	-codec:v mpeg1video -s 640x480 -b:v 100k -bf 0 \
+	-muxdelay 0.001 \
+	$(SERVER)/$(SECRET)/$(STREAM_ID)
 
 docker-build:
 	docker build -t yfsoftcom/rtsp-websocket .
