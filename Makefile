@@ -1,4 +1,4 @@
-SERVER = https://rtsp.yunjiaiot.cn/push
+SERVER = http://rtsp.yunjiaiot.cn/push
 SECRET = fpmpassword
 STREAM_ID = abc
 server:
